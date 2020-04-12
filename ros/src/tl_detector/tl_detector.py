@@ -12,6 +12,7 @@ import cv2
 import yaml
 from scipy.spatial import KDTree
 
+import os
 from PIL import Image as im
 
 
@@ -29,7 +30,8 @@ class TLDetector(object):
         self.camera_image = None
         self.image_cnt = 0         # used for naming images saved --zll
         # self.image_filepath = '/home/workspace/CarND-Capstone/ros/images/'
-        self.image_filepath = '/home/udacity/CarND-Capstone/ros/images/'
+        # self.image_filepath = '/home/udacity/CarND-Capstone/ros/images/'
+        self.image_filepath = os.path.abspath('../..') + '/images/'
         self.lights = None
 
         sub1 = rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
