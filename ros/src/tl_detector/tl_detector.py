@@ -28,7 +28,7 @@ class TLDetector(object):
         self.waypoints_tree = None
         self.has_image = False
         self.camera_image = None
-        self.image_cnt = 0         # used for naming images saved --zll
+        # self.image_cnt = 0         # used for naming images saved --zll
         # self.image_filepath = '/home/workspace/CarND-Capstone/ros/images/'
         # self.image_filepath = '/home/udacity/CarND-Capstone/ros/images/'
         self.image_filepath = os.path.abspath('../..') + '/images/'
@@ -166,8 +166,8 @@ class TLDetector(object):
                 # rospy.logwarn("[top:{0} bottom:{1} left:{2} right:{3}]".format(top, bottom, left, right))
                 cropped = cv_image[top: bottom, left: right]
                 # rospy.logwarn("cropped_image: {0}".format(cropped.shape))
-                cv2.imwrite(self.image_filepath + "image_{}.jpg".format(self.image_cnt), cropped)
-                self.image_cnt += 1
+                # cv2.imwrite(self.image_filepath + "image_{}.jpg".format(self.image_cnt), cropped)
+                # self.image_cnt += 1
                 state = self.light_classifier.get_classification(cropped)
                 rospy.logwarn("light state: {0}, equal {1}".format(state, light.state))
 
