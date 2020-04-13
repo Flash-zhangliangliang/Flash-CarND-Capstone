@@ -1,11 +1,23 @@
 
 import os
+import cv2
 import tensorflow as tf
 import numpy as np
 from styx_msgs.msg import TrafficLight
+from keras.preprocessing import image
+from keras.models import Sequential, load_model
+from keras.layers.convolutional import Conv2D
+from keras.layers.core import Dense, Activation, Flatten, Dropout
 
 
 class TLClassifier(object):
+
+    # the size of training images
+    IMAGE_HEIGHT = 32
+    IMAGE_WIDTH = 32
+    IMAGE_CHANNEL = 3
+    IMAGE_CLASSIFY = 3
+
     def __init__(self):
         # TODO load classifier
         # Frozen inference graph files. NOTE: change the path to where you saved the models.
@@ -35,6 +47,9 @@ class TLClassifier(object):
 
         # class id of traffic light in ssd
         self.TRAFFIC_LIGHT_CLASS_ID = 10
+
+        self.model_path = os.path.abspath('.') + '/light_classification/traffic_lights_classfy.h5'
+        self.model = load_model(self.model_path)
 
     @staticmethod
     def load_graph(graph_file):
@@ -129,4 +144,19 @@ class TLClassifier(object):
 
         """
         # TODO implement light color prediction
-        return TrafficLight.UNKNOWN
+        image_cb = self.image_preprocess(image)
+        resault = self.model.predict(image_cb)
+        resault = np.argmax(resault)
+        # return resault
+        return resault
+
+    def image_preprocess(self, cropped):
+
+        im_test = cv2.resize(cropped, (self.IMAGE_WIDTH, self.IMAGE_HEIGHT))
+        im_test = im_test / 255.0 - 0.5
+
+        im_test = image.img_to_array(im_test)
+        im_test = np.expand_dims(im_test, axis=0)
+
+        return im_test
+
