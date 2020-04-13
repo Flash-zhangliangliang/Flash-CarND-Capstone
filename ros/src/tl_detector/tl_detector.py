@@ -28,6 +28,7 @@ class TLDetector(object):
         self.waypoints_tree = None
         self.has_image = False
         self.camera_image = None
+        self.light_state = TrafficLight.RED
         # self.image_cnt = 0         # used for naming images saved --zll
         # self.image_filepath = '/home/workspace/CarND-Capstone/ros/images/'
         # self.image_filepath = '/home/udacity/CarND-Capstone/ros/images/'
@@ -160,6 +161,7 @@ class TLDetector(object):
             cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
             cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
             image = im.fromarray(cv_image)
+            self.light_state = TrafficLight.RED
             traffic_light = self.light_classifier.get_location(image)
             if traffic_light:
                 [top, left, bottom, right] = traffic_light
@@ -168,13 +170,14 @@ class TLDetector(object):
                 # rospy.logwarn("cropped_image: {0}".format(cropped.shape))
                 # cv2.imwrite(self.image_filepath + "image_{}.jpg".format(self.image_cnt), cropped)
                 # self.image_cnt += 1
-                state = self.light_classifier.get_classification(cropped)
-                rospy.logwarn("light state: {0}, equal {1}".format(state, light.state))
+                self.light_state = self.light_classifier.get_classification(cropped)
+                rospy.logwarn("light state: {0}, equal {1}".format(self.light_state, light.state))
 
             self.has_image = False
 
         # but we still use light.state
-        return light.state
+        # return light.state
+        return self.light_state
 
         # if(not self.has_image):
         #     self.prev_light_loc = None
