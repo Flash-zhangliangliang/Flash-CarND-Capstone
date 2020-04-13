@@ -4,6 +4,7 @@ import cv2
 import tensorflow as tf
 import numpy as np
 from styx_msgs.msg import TrafficLight
+# import matplotlib.pyplot as plt
 from keras.preprocessing import image
 from keras.models import Sequential, load_model
 from keras.layers.convolutional import Conv2D
@@ -21,7 +22,7 @@ class TLClassifier(object):
     def __init__(self):
         # TODO load classifier
         # Frozen inference graph files. NOTE: change the path to where you saved the models.
-        # self.SSD_GRAPH_FILE = 'ssd_mobilenet_v1_coco_11_06_2017/frozen_inference_graph.pb'
+        # self.SSD_GRAPH_FILE = './ssd_mobilenet_v1_coco_11_06_2017/frozen_inference_graph.pb'
         # self.SSD_GRAPH_FILE = '/home/udacity/CarND-Capstone/ros/src/tl_detector/light_classification/' \
         #                       'ssd_mobilenet_v1_coco_11_06_2017/frozen_inference_graph.pb'
         self.SSD_GRAPH_FILE = os.path.abspath('.') + '/light_classification/ssd_mobilenet_v1_coco_11_06_2017/frozen_inference_graph.pb'
@@ -49,6 +50,7 @@ class TLClassifier(object):
         self.TRAFFIC_LIGHT_CLASS_ID = 10
 
         self.model_path = os.path.abspath('.') + '/light_classification/traffic_lights_classfy.h5'
+        # self.model_path = './traffic_lights_classfy.h5'
         self.model = load_model(self.model_path)
 
     @staticmethod
@@ -151,12 +153,27 @@ class TLClassifier(object):
         return resault
 
     def image_preprocess(self, cropped):
-
+        # cropped = cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB)
+        # plt.imshow(cropped)
+        # plt.show()
         im_test = cv2.resize(cropped, (self.IMAGE_WIDTH, self.IMAGE_HEIGHT))
+        # plt.imshow(im_test)
+        # plt.show()
         im_test = im_test / 255.0 - 0.5
-
+        # plt.imshow(im_test)
+        # plt.show()
         im_test = image.img_to_array(im_test)
         im_test = np.expand_dims(im_test, axis=0)
 
         return im_test
+
+
+if __name__ == '__main__':
+    # tlc = TLClassifier()
+    # im = cv2.imread('./images/image_0.jpg')
+    #
+    # re = tlc.get_classification(im)
+    # print(re)
+    pass
+
 

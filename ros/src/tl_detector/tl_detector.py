@@ -158,7 +158,8 @@ class TLDetector(object):
         # detect traffic light, and save it
         if self.has_image:
             cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
-            image = im.fromarray(cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB))
+            cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
+            image = im.fromarray(cv_image)
             traffic_light = self.light_classifier.get_location(image)
             if traffic_light:
                 [top, left, bottom, right] = traffic_light
