@@ -65,19 +65,19 @@ class TLDetector(object):
         self.last_wp = -1
         self.state_count = 0
 
-        # rospy.spin()
+        rospy.spin()
         # zhangliangliang added
         # change image callback method to loop
         # to test the process_traffic_lights
         # and the Waypoints Updater Node
-        self.loop()
+        # self.loop()
 
-    def loop(self):
-        rate = rospy.Rate(50)
-        while not rospy.is_shutdown():
-            if self.pose and self.waypoints and self.lights and self.camera_image:
-                self.publish_waypoints()
-            rate.sleep()
+    # def loop(self):
+    #     rate = rospy.Rate(50)
+    #     while not rospy.is_shutdown():
+    #         if self.pose and self.waypoints and self.lights and self.camera_image:
+    #             self.publish_waypoints()
+    #         rate.sleep()
 
     def pose_cb(self, msg):
         self.pose = msg
@@ -105,6 +105,8 @@ class TLDetector(object):
         # cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
         # cv2.imwrite(self.image_filepath + "image_{}.jpg".format(self.image_cnt), cv_image)
         # self.image_cnt += 1
+        self.publish_waypoints()
+
 
     def publish_waypoints(self):
 
