@@ -34,7 +34,7 @@ class TLDetector(object):
         # self.image_filepath = '/home/workspace/CarND-Capstone/ros/images/'
         # self.image_filepath = '/home/udacity/CarND-Capstone/ros/images/'
         self.image_filepath = os.path.abspath('../..') + '/images/'
-        self.csv_file = open(self.image_filepath + 'light_state.csv', 'w', encoding='utf-8')
+        self.csv_file = open(self.image_filepath + 'light_state.csv', 'w')
         self.csv_writer = csv.writer(self.csv_file)
         self.csv_writer.writerow(['image index', 'light state'])
         self.lights = None
