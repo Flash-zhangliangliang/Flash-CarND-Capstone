@@ -14,6 +14,7 @@ from scipy.spatial import KDTree
 
 import os
 from PIL import Image as im
+import csv
 
 
 STATE_COUNT_THRESHOLD = 3
@@ -29,10 +30,13 @@ class TLDetector(object):
         self.has_image = False
         self.camera_image = None
         self.light_state = TrafficLight.RED
-        # self.image_cnt = 0         # used for naming images saved --zll
+        self.image_cnt = 0         # used for naming images saved --zll
         # self.image_filepath = '/home/workspace/CarND-Capstone/ros/images/'
         # self.image_filepath = '/home/udacity/CarND-Capstone/ros/images/'
         self.image_filepath = os.path.abspath('../..') + '/images/'
+        self.csv_file = open(self.image_filepath + 'light_state.csv', 'w', encoding='utf-8')
+        self.csv_writer = csv.writer(self.csv_file)
+        self.csv_writer.writerow(['image index', 'light state'])
         self.lights = None
 
         sub1 = rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
@@ -71,6 +75,9 @@ class TLDetector(object):
         # to test the process_traffic_lights
         # and the Waypoints Updater Node
         self.loop()
+
+    def __del__(self):
+        self.csv_file.close()
 
     def loop(self):
         rate = rospy.Rate(50)
@@ -153,30 +160,31 @@ class TLDetector(object):
 
         """
         # For testing, just return the light state
-        return light.state
+        # return light.state
 
         # second step:
         # detect traffic light, and save it
-        # if self.has_image:
-        #     cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
-        #     cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
-        #     image = im.fromarray(cv_image)
-        #     self.light_state = TrafficLight.RED
-        #     traffic_light = self.light_classifier.get_location(image)
-        #     if traffic_light:
-        #         [top, left, bottom, right] = traffic_light
-        #         # rospy.logwarn("[top:{0} bottom:{1} left:{2} right:{3}]".format(top, bottom, left, right))
-        #         cropped = cv_image[top: bottom, left: right]
-        #         # rospy.logwarn("cropped_image: {0}".format(cropped.shape))
-        #         # cv2.imwrite(self.image_filepath + "image_{}.jpg".format(self.image_cnt), cropped)
-        #         # self.image_cnt += 1
-        #         self.light_state = self.light_classifier.get_classification(cropped)
-        #         rospy.logwarn("light state: {0}, equal {1}".format(self.light_state, light.state))
-        #
-        #     self.has_image = False
-        #
-        # # but we still use light.state
-        # # return light.state
+        if self.has_image:
+            cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
+            cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
+            image = im.fromarray(cv_image)
+            self.light_state = TrafficLight.RED
+            traffic_light = self.light_classifier.get_location(image)
+            if traffic_light:
+                [top, left, bottom, right] = traffic_light
+                # rospy.logwarn("[top:{0} bottom:{1} left:{2} right:{3}]".format(top, bottom, left, right))
+                cropped = cv_image[top: bottom, left: right]
+                # rospy.logwarn("cropped_image: {0}".format(cropped.shape))
+                cv2.imwrite(self.image_filepath + "image_{}.jpg".format(self.image_cnt), cropped)
+                self.csv_writer.writerow(['image_{}'.format(self.image_cnt), str(light.state)])
+                self.image_cnt += 1
+                # self.light_state = self.light_classifier.get_classification(cropped)
+                # rospy.logwarn("light state: {0}, equal {1}".format(self.light_state, light.state))
+
+            self.has_image = False
+
+        # but we still use light.state
+        return light.state
         # return self.light_state
 
         # if(not self.has_image):
