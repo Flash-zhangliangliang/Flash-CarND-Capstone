@@ -20,23 +20,29 @@ import csv
 STATE_COUNT_THRESHOLD = 3
 
 class TLDetector(object):
-    def __init__(self):
+     def __init__(self):
         rospy.init_node('tl_detector')
 
         self.pose = None
         self.waypoints = None
         self.waypoints_2d = None
         self.waypoints_tree = None
+
         self.has_image = False
         self.camera_image = None
         self.light_state = TrafficLight.RED
         self.image_cnt = 0         # used for naming images saved --zll
-        # self.image_filepath = '/home/workspace/CarND-Capstone/ros/images/'
-        # self.image_filepath = '/home/udacity/CarND-Capstone/ros/images/'
         self.image_filepath = os.path.abspath('../..') + '/images/'
+
+        self.LOCAL_HIGHT = 200
+        self.LOCAL_WIDTH = 0
+        self.HIGHT = 500
+        self.WIDTH = 400
+
         self.csv_file = open(self.image_filepath + 'light_state.csv', 'w')
         self.csv_writer = csv.writer(self.csv_file)
         self.csv_writer.writerow(['image index', 'light state'])
+
         self.lights = None
 
         sub1 = rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
@@ -109,9 +115,9 @@ class TLDetector(object):
         """
         self.has_image = True
         self.camera_image = msg
-        # cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
-        # cv2.imwrite(self.image_filepath + "image_{}.jpg".format(self.image_cnt), cv_image)
-        # self.image_cnt += 1
+        cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
+        cv2.imwrite(self.image_filepath + "image_{}.jpg".format(self.image_cnt), cv_image)
+        self.image_cnt += 1
 
     def publish_waypoints(self):
 
@@ -167,6 +173,7 @@ class TLDetector(object):
         if self.has_image:
             cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
             cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
+            cv_image = cv_image[self.LOCAL_HIGHT: self.LOCAL_HIGHT + self.HIGHT, self.LOCAL_WIDTH: self.LOCAL_WIDTH + self.WIDTH]
             image = im.fromarray(cv_image)
             self.light_state = TrafficLight.RED
             traffic_light = self.light_classifier.get_location(image)
