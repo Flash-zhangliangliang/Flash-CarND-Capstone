@@ -34,10 +34,10 @@ class TLDetector(object):
         self.image_cnt = 0         # used for naming images saved --zll
         self.image_filepath = os.path.abspath('../..') + '/images/'
 
-        self.LOCAL_HIGHT = 200
+        self.LOCAL_HIGHT = 0
         self.LOCAL_WIDTH = 0
-        self.HIGHT = 500
-        self.WIDTH = 400
+        self.HIGHT = 400
+        self.WIDTH = 800
 
         self.csv_file = open(self.image_filepath + 'light_state.csv', 'w')
         self.csv_writer = csv.writer(self.csv_file)
@@ -171,15 +171,12 @@ class TLDetector(object):
         # second step:
         # detect traffic light, and save it
         if self.has_image:
-             cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
-             cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
-             cv2.imwrite(self.image_filepath + "image_{}.jpg".format(self.image_cnt), cv_image)
-             self.csv_writer.writerow(['image_{}'.format(self.image_cnt), str(light.state)])
-             self.image_cnt += 1
-        #     cv_image = cv_image[self.LOCAL_HIGHT: self.LOCAL_HIGHT + self.HIGHT, self.LOCAL_WIDTH: self.LOCAL_WIDTH + self.WIDTH]
-        #     image = im.fromarray(cv_image)
-        #     self.light_state = TrafficLight.RED
-        #     traffic_light = self.light_classifier.get_location(image)
+            cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
+            cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
+            cv_image = cv_image[self.LOCAL_HIGHT: self.LOCAL_HIGHT + self.HIGHT, self.LOCAL_WIDTH: self.LOCAL_WIDTH + self.WIDTH]
+            image = im.fromarray(cv_image)
+            self.light_state = TrafficLight.RED
+            traffic_light = self.light_classifier.get_location(image)
         #     if traffic_light:
         #         [top, left, bottom, right] = traffic_light
         #         # rospy.logwarn("[top:{0} bottom:{1} left:{2} right:{3}]".format(top, bottom, left, right))
@@ -191,9 +188,10 @@ class TLDetector(object):
         #         # self.light_state = self.light_classifier.get_classification(cropped)
         #         # rospy.logwarn("light state: {0}, equal {1}".format(self.light_state, light.state))
         #
-             self.has_image = False
+            self.has_image = False
         #
         # # but we still use light.state
+        rospy.logwarn("light state: {0}".format(light.state))
         return light.state
         # return self.light_state
 
