@@ -115,9 +115,9 @@ class TLDetector(object):
         """
         self.has_image = True
         self.camera_image = msg
-        cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
-        cv2.imwrite(self.image_filepath + "image_{}.jpg".format(self.image_cnt), cv_image)
-        self.image_cnt += 1
+        # cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
+        # cv2.imwrite(self.image_filepath + "image_{}.jpg".format(self.image_cnt), cv_image)
+        # self.image_cnt += 1
 
     def publish_waypoints(self):
 
@@ -166,13 +166,15 @@ class TLDetector(object):
 
         """
         # For testing, just return the light state
-        return light.state
+        # return light.state
 
         # second step:
         # detect traffic light, and save it
-        # if self.has_image:
-        #     cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
-        #     cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
+        if self.has_image:
+             cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
+             cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
+             cv2.imwrite(self.image_filepath + "image_{}.jpg".format(self.image_cnt), cv_image)
+             self.image_cnt += 1
         #     cv_image = cv_image[self.LOCAL_HIGHT: self.LOCAL_HIGHT + self.HIGHT, self.LOCAL_WIDTH: self.LOCAL_WIDTH + self.WIDTH]
         #     image = im.fromarray(cv_image)
         #     self.light_state = TrafficLight.RED
@@ -188,10 +190,10 @@ class TLDetector(object):
         #         # self.light_state = self.light_classifier.get_classification(cropped)
         #         # rospy.logwarn("light state: {0}, equal {1}".format(self.light_state, light.state))
         #
-        #     self.has_image = False
+             self.has_image = False
         #
         # # but we still use light.state
-        # return light.state
+        return light.state
         # return self.light_state
 
         # if(not self.has_image):
