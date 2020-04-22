@@ -174,6 +174,7 @@ class TLDetector(object):
              cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
              cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
              cv2.imwrite(self.image_filepath + "image_{}.jpg".format(self.image_cnt), cv_image)
+             self.csv_writer.writerow(['image_{}'.format(self.image_cnt), str(light.state)])
              self.image_cnt += 1
         #     cv_image = cv_image[self.LOCAL_HIGHT: self.LOCAL_HIGHT + self.HIGHT, self.LOCAL_WIDTH: self.LOCAL_WIDTH + self.WIDTH]
         #     image = im.fromarray(cv_image)
