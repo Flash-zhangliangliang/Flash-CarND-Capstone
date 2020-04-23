@@ -14,7 +14,6 @@ from scipy.spatial import KDTree
 
 import os
 from PIL import Image as im
-import csv
 
 
 STATE_COUNT_THRESHOLD = 3
@@ -27,23 +26,21 @@ class TLDetector(object):
         self.waypoints = None
         self.waypoints_2d = None
         self.waypoints_tree = None
-
         self.has_image = False
         self.camera_image = None
         self.light_state = TrafficLight.RED
-        self.image_cnt = 0         # used for naming images saved --zll
+        # self.image_cnt = 0         # used for naming images saved --zll
+        # self.image_filepath = '/home/workspace/CarND-Capstone/ros/images/'
+        # self.image_filepath = '/home/udacity/CarND-Capstone/ros/images/'
         self.image_filepath = os.path.abspath('../..') + '/images/'
+        self.lights = None
 
         self.LOCAL_HIGHT = 0
         self.LOCAL_WIDTH = 0
-        self.HIGHT = 400
+        self.HIGHT = 500
         self.WIDTH = 800
 
-        self.csv_file = open(self.image_filepath + 'light_state.csv', 'w')
-        self.csv_writer = csv.writer(self.csv_file)
-        self.csv_writer.writerow(['image index', 'light state'])
-
-        self.lights = None
+        self.diff = 20
 
         sub1 = rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
         sub2 = rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
@@ -81,9 +78,6 @@ class TLDetector(object):
         # to test the process_traffic_lights
         # and the Waypoints Updater Node
         self.loop()
-
-    def __del__(self):
-        self.csv_file.close()
 
     def loop(self):
         rate = rospy.Rate(50)
@@ -177,23 +171,21 @@ class TLDetector(object):
             image = im.fromarray(cv_image)
             self.light_state = TrafficLight.RED
             traffic_light = self.light_classifier.get_location(image)
-        #     if traffic_light:
-        #         [top, left, bottom, right] = traffic_light
-        #         # rospy.logwarn("[top:{0} bottom:{1} left:{2} right:{3}]".format(top, bottom, left, right))
-        #         cropped = cv_image[top: bottom, left: right]
-        #         # rospy.logwarn("cropped_image: {0}".format(cropped.shape))
-        #         cv2.imwrite(self.image_filepath + "image_{}.jpg".format(self.image_cnt), cropped)
-        #         self.csv_writer.writerow(['image_{}'.format(self.image_cnt), str(light.state)])
-        #         self.image_cnt += 1
-        #         # self.light_state = self.light_classifier.get_classification(cropped)
-        #         # rospy.logwarn("light state: {0}, equal {1}".format(self.light_state, light.state))
-        #
+            if traffic_light:
+                [top, left, bottom, right] = traffic_light
+                # rospy.logwarn("[top:{0} bottom:{1} left:{2} right:{3}]".format(top, bottom, left, right))
+                cropped = cv_image[top: bottom, left: right]
+                # rospy.logwarn("cropped_image: {0}".format(cropped.shape))
+                # cv2.imwrite(self.image_filepath + "image_{}.jpg".format(self.image_cnt), cropped)
+                # self.image_cnt += 1
+                self.light_state = self.light_classifier.get_classification(cropped)
+                rospy.logwarn("light state: {0}, equal {1}".format(self.light_state, light.state))
+
             self.has_image = False
-        #
-        # # but we still use light.state
-        rospy.logwarn("light state: {0}".format(light.state))
-        return light.state
-        # return self.light_state
+
+        # but we still use light.state
+        # return light.state
+        return self.light_state
 
         # if(not self.has_image):
         #     self.prev_light_loc = None
@@ -222,7 +214,8 @@ class TLDetector(object):
             car_wp_idx = self.get_closest_waypoint(self.pose.pose.position.x, self.pose.pose.position.y)
 
             # TODO find the closest visible traffic light (if one exists)
-            diff = len(self.waypoints.waypoints)
+            # diff = len(self.waypoints.waypoints)
+            diff = self.diff
             for i, line in enumerate(stop_line_positions):
                 # Get stop line waypoint index
                 # line = stop_line_positions[i]
