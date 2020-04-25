@@ -40,7 +40,7 @@ class TLDetector(object):
         self.HIGHT = 500
         self.WIDTH = 800
 
-        self.diff = 20
+        self.diff = 100
 
         sub1 = rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
         sub2 = rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
@@ -82,7 +82,8 @@ class TLDetector(object):
     def loop(self):
         rate = rospy.Rate(50)
         while not rospy.is_shutdown():
-            if self.pose and self.waypoints and self.lights and self.camera_image:
+            # if self.pose and self.waypoints and self.lights and self.camera_image:
+            if self.pose and self.waypoints and self.camera_image:
                 self.publish_waypoints()
             rate.sleep()
 
@@ -179,7 +180,8 @@ class TLDetector(object):
                 # cv2.imwrite(self.image_filepath + "image_{}.jpg".format(self.image_cnt), cropped)
                 # self.image_cnt += 1
                 self.light_state = self.light_classifier.get_classification(cropped)
-                rospy.logwarn("light state: {0}, equal {1}".format(self.light_state, light.state))
+                rospy.logwarn("light state: {0}".format(self.light_state))
+                # rospy.logwarn("light state: {0}, equal {1}".format(self.light_state, light.state))
 
             self.has_image = False
 
@@ -232,7 +234,8 @@ class TLDetector(object):
         if line_wp_idx:
             # -------------------------------------------------------------
             # this is the only place to use self.lights function
-            light = self.lights[closet_light_i]
+            # light = self.lights[closet_light_i]
+            light = None
             state = self.get_light_state(light)
             # -------------------------------------------------------------
             return line_wp_idx, state
